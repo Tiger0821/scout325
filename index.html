@@ -4,27 +4,45 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>首頁｜325 奎山童軍團</title>
+<meta name="theme-color" content="#05070f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<header><div class="bar"><a class="logo" href="index.html">325 <span>奎山童軍團</span></a><nav><a href="index.html" class="active">首頁</a><a href="about.html">團的介紹</a><a href="calendar.html">行事曆</a><a href="guestbook.html">留言板</a></nav></div></header>
-<section class="hero"><h1>325 奎山童軍團</h1><p>日行一善・準備・服務</p></section>
+<header><div class="bar"><a class="logo" href="index.html"><b>325</b> // 奎山童軍團</a><nav><a href="index.html" class="active">首頁</a><a href="about.html">團的介紹</a><a href="calendar.html">行事曆</a><a href="guestbook.html">留言板</a></nav></div></header>
+<section class="hero">
+<canvas id="mountain" aria-hidden="true"></canvas>
+<div class="hero-copy"><div class="kicker">SCOUT TROOP 325 · KUISHAN</div><h1>奎山<br>童軍團</h1><p>日行一善・準備・服務</p></div>
+<div class="hud hud-tr" id="hud-t">t 000.00s</div>
+<div class="hud hud-bl">@325.KUISHAN · 2026
+rotation <span id="hud-rot">000.00°</span>    scouts  ∞</div>
+<div class="hud-bar"><span class="chip" id="hud-track">TRACKING 0 POINTS</span><canvas id="pulse" aria-hidden="true"></canvas><span class="chip">LEAD 325</span></div>
+</section>
 <main>
-<h2>最新消息</h2>
+<section>
+<h2><span class="tag">01 / NEWS</span>最新消息</h2>
 <div class="grid">
-<div class="card"><p class="date">2026/11/15</p><h3>團網站正式上線！</h3><p>歡迎大家來到 325 奎山童軍團的新網站。</p></div>
-<div class="card"><p class="date">2026/__/__</p><h3>（新消息標題）</h3><p>（消息內容待補）</p></div>
-<div class="card"><p class="date">2026/__/__</p><h3>（新消息標題）</h3><p>（消息內容待補）</p></div>
+<div class="card"><div class="date">2026.11.15</div><h3>團網站正式上線！</h3><p>歡迎大家來到 325 奎山童軍團的新網站。</p></div>
+<div class="card"><div class="date">2026.__.__</div><h3>（新消息標題）</h3><p>（消息內容待補）</p></div>
+<div class="card"><div class="date">2026.__.__</div><h3>（新消息標題）</h3><p>（消息內容待補）</p></div>
 </div>
-<h2>活動簡介</h2>
+</section>
+<section>
+<h2><span class="tag">02 / ACTIVITIES</span>活動簡介</h2>
 <div class="grid">
-<div class="card"><h3>露營</h3><p>（活動介紹待補：搭帳、野炊、營火晚會……）</p></div>
-<div class="card"><h3>技能訓練</h3><p>（活動介紹待補：繩結、旗號、地圖判讀……）</p></div>
-<div class="card"><h3>服務活動</h3><p>（活動介紹待補：社區服務、淨灘……）</p></div>
+<div class="card"><div class="label">CAMPING</div><h3>露營</h3><p>（活動介紹待補：搭帳、野炊、營火晚會……）</p></div>
+<div class="card"><div class="label">SKILLS</div><h3>技能訓練</h3><p>（活動介紹待補：繩結、旗號、地圖判讀……）</p></div>
+<div class="card"><div class="label">SERVICE</div><h3>服務活動</h3><p>（活動介紹待補：社區服務、淨灘……）</p></div>
 </div>
-<h2>活動相片</h2>
-<div class="grid photos"><img src="images/photo1.svg" alt="活動照片 1"><img src="images/photo2.svg" alt="活動照片 2"><img src="images/photo3.svg" alt="活動照片 3"></div>
+</section>
+<section>
+<h2><span class="tag">03 / GALLERY</span>活動相片</h2>
+<div class="grid photos"><figure><img src="images/photo1.svg" alt="活動照片 1"><figcaption>IMG_001 · （照片說明）</figcaption></figure><figure><img src="images/photo2.svg" alt="活動照片 2"><figcaption>IMG_002 · （照片說明）</figcaption></figure><figure><img src="images/photo3.svg" alt="活動照片 3"><figcaption>IMG_003 · （照片說明）</figcaption></figure></div>
+</section>
 </main>
-<footer>© 2026 325 奎山童軍團</footer>
+<footer>© 2026 325 奎山童軍團 · SCOUT TROOP 325 · <span class="blink">_</span></footer>
+<script src="sky.js"></script>
 </body>
 </html>
