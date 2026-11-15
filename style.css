@@ -118,7 +118,7 @@ footer p{font-family:var(--mono);font-size:.72rem;color:var(--muted);margin:14px
 
 @media (max-width:760px){
   .hero.sub{height:340px}
-  .hero.sub .hero-copy{top:9%;transform:none}
+  .hero.sub .hero-copy{top:56px;transform:none}
   .hero-copy{top:5%}
   .vert,.hud-bl{display:none}
   .hud-tr{right:16px}
@@ -192,13 +192,13 @@ html[lang=en] .card h3{letter-spacing:0}
   background:linear-gradient(90deg,var(--red) var(--p,0%),var(--lime) var(--p,0%));transform:translateY(-100%);transition:transform .15s}
 .pull.on{transform:none}
 .egg{position:fixed;inset:0;z-index:300;display:none;flex-direction:column;background:#120303;overflow:hidden}
-.egg.open{display:flex;animation:eggflash .5s steps(2) 3}
+.egg.open{display:flex;animation:eggflash .7s steps(2) 2}
 @keyframes eggflash{50%{background:var(--red)}}
 .egg::before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(rgba(232,65,44,.16) 0 2px,transparent 2px 5px),radial-gradient(circle at 50% 45%,rgba(232,65,44,.35),transparent 60%)}
 .haz{flex:none;height:clamp(34px,6vh,56px);background:repeating-linear-gradient(-45deg,var(--lime) 0 26px,#000 26px 52px);background-size:73.54px 100%;animation:haz 1s linear infinite}
 .haz:last-child{animation-direction:reverse}
 @keyframes haz{to{background-position:73.54px 0}}
-.egg-in{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 16px;gap:6px;animation:shake .35s steps(2) infinite;min-height:0}
+.egg-in{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px 16px;gap:6px;animation:shake .35s steps(2) 4;min-height:0}
 @keyframes shake{0%{transform:translate(0,0)}25%{transform:translate(-2px,1px)}50%{transform:translate(2px,-1px)}75%{transform:translate(-1px,-2px)}}
 .egg-code{font-family:var(--mono);font-size:clamp(.6rem,1.6vw,.8rem);letter-spacing:.2em;color:var(--red)}
 .egg-h{font-family:var(--display);font-size:clamp(5.5rem,min(30vw,34vh),19rem);line-height:.95;color:var(--cream);text-shadow:.04em .04em 0 var(--red)}
@@ -226,3 +226,9 @@ html[lang=en] .egg-h{font-size:clamp(3rem,min(14vw,24vh),10rem)}
 #hud-bpm{min-width:112px;text-align:center;color:var(--teal);border-color:var(--teal)}
 #hud-bpm.hot{color:#000;background:var(--red);border-color:var(--red)}
 @media (max-width:760px){.hud-bar #hud-bpm{display:block;position:absolute;right:0;bottom:66px}}
+
+/* ===== pause-motion control ===== */
+.motion-btn{position:absolute;top:40px;right:48px;font-family:var(--mono);font-weight:700;font-size:.68rem;letter-spacing:.1em;color:var(--muted);background:rgba(5,6,9,.7);border:1px solid var(--line-2);padding:4px 9px;cursor:pointer}
+.motion-btn:hover,.motion-btn[aria-pressed=true]{color:#000;background:var(--lime);border-color:var(--lime)}
+html.paused *,html.paused *::before,html.paused *::after{animation-play-state:paused!important}
+@media (max-width:760px){.motion-btn{top:14px;left:16px;right:auto}.hero .hero-copy{top:52px}.hud-hint{bottom:118px;font-size:.72rem}}

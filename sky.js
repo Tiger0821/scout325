@@ -58,10 +58,10 @@
       }
     }
     const targets = [
-      { name: 'SUMMIT 峰頂', r: 0, th: 0 },
-      { name: 'CAMP 營地', r: 0.55, th: 0.8 },
-      { name: 'TRAIL 步道', r: 0.38, th: 2.6 },
-      { name: 'RIDGE 稜線', r: 0.45, th: 4.3 },
+      { name: 'SUMMIT 峰頂', r: 0, th: 0, row: 1.07, r0: 0.1 },
+      { name: 'CAMP 營地', r: 0.55, th: 0.8, row: 0.38, r0: 0.76 },
+      { name: 'TRAIL 步道', r: 0.38, th: 2.6, row: 0.74, r0: 0.36 },
+      { name: 'RIDGE 稜線', r: 0.45, th: 4.3, row: 0.56, r0: 0.55 },
     ].map(p => ({ ...p, x: p.r * Math.cos(p.th), z: p.r * Math.sin(p.th), h: height(p.r, p.th) }));
     M = { ctx: cv.getContext('2d'), pts, targets, K };
   }
@@ -148,63 +148,53 @@
       ctx.fillRect(ix * cell, iy * cell, dw, dh);
     }
 
-    // HUD callouts on tracked points
-    ctx.font = `700 11px ${MONO}`;
-    ctx.textAlign = 'left';
-    // 反白 text: light on the dark sky, dark wherever it crosses the mountain
-    const inv = (text, tx, by, color) => {
-      const tw = ctx.measureText(text).width;
-      ctx.fillStyle = color; ctx.fillText(text, tx, by);
-      const x0 = Math.max(0, ((tx - 3) / cell) | 0), x1 = Math.min(cols - 1, ((tx + tw + 3) / cell) | 0);
-      const y0 = Math.max(0, ((by - 12) / cell) | 0), y1 = Math.min(rows - 1, ((by + 4) / cell) | 0);
-      ctx.save(); ctx.beginPath();
-      let any = false;
-      for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
-        const i = iy * cols + ix;
-        if (z[i] === -1e9) continue;
-        any = true;
-        ctx.fillStyle = `rgb(${Math.min(255, c[i * 3] + 40) | 0},${Math.min(255, c[i * 3 + 1] + 40) | 0},${Math.min(255, c[i * 3 + 2] + 40) | 0})`;
-        ctx.fillRect(ix * cell, iy * cell, cell, cell);
-        ctx.rect(ix * cell, iy * cell, cell, cell);
-      }
-      if (any) { ctx.clip(); ctx.fillStyle = '#03050a'; ctx.fillText(text, tx, by); }
-      ctx.restore();
-    };
-    ctx.lineWidth = 1;
-    const lock = Math.floor(t / 2600) % M.targets.length;
-    let tracked = 0;
-    // area taken by the title text, so labels never sit behind it
-    let av = null;
+    // HUD callouts. Each label owns a fixed row and has only two possible spots (left or right
+    // flank of the mountain), so the text stays still while its point moves. Labels fade in and
+    // out, switch sides only after the point is clearly across, and refresh numbers 4x a second.
+    ctx.font = `700 11px ${MONO}`; ctx.textAlign = 'left'; ctx.lineWidth = 1;
+    let av = null;   // area taken by the title text, so labels never sit behind it
     if (copy) { const a = copy.getBoundingClientRect(), b = cv.getBoundingClientRect(); av = { l: a.left - b.left - 10, r: a.right - b.left + 10, t: a.top - b.top - 6, b: a.bottom - b.top + 6 }; }
+    const narrow = W < 760, pad4 = v => String(Math.max(0, Math.round(v))).padStart(4, '0');
+    let tracked = 0;
+    if (M.lock === undefined || t - M.lockT > 3200) {      // lock moves on to the next visible point
+      for (let k = 1; k <= M.targets.length; k++) { const j = ((M.lock ?? -1) + k) % M.targets.length; if ((M.targets[j].seen || 0) > 0.5) { M.lock = j; break; } }
+      M.lockT = t;
+    }
     M.targets.forEach((p, n) => {
       const q = project(p.x, p.h, p.z, ca, sa);
-      const ix = (q.sx / cell) | 0, iy = (q.sy / cell) | 0;
-      const i = iy * cols + ix;
-      if (ix < 0 || iy < 0 || ix >= cols || iy >= rows || q.d < z[i] - 0.06) return;
-      tracked++;
-      if (M.noLabels) { ctx.strokeStyle = 'rgba(220,230,255,.55)'; ctx.strokeRect(q.sx - 4, q.sy - 4, 8, 8); return; }
-      const label = `${p.name}  X ${Math.round(q.sx)} Y ${Math.round(q.sy)}`;
-      const tw = ctx.measureText(label).width;
-      let left = q.sx > M.cx + 10 ? 1 : -1;
-      const reach = 50 + n * 6, ly = q.sy - 26 - n * 4;
-      if (left < 0 && q.sx - reach - tw - 8 < 0) left = 1;
-      if (left > 0 && q.sx + reach + tw + 8 > W) left = -1;
-      const place = d => { const lx = q.sx + d * reach; return { lx, tx: Math.max(4, Math.min(W - tw - 4, d > 0 ? lx + 4 : lx - 4 - tw)) }; };
-      const blocked = o => av && o.tx < av.r && o.tx + tw > av.l && ly + 6 > av.t && ly - 10 < av.b;
-      let o = place(left);
-      if (blocked(o)) { left = -left; o = place(left); }
-      ctx.strokeStyle = 'rgba(220,230,255,.55)';
-      ctx.strokeRect(q.sx - 4, q.sy - 4, 8, 8);
-      if (blocked(o) || (av && q.sx > av.l && q.sx < av.r && q.sy > av.t && q.sy < av.b)) return;   // no room: box only
-      const lx = o.lx, tx = o.tx;
-      ctx.beginPath(); ctx.moveTo(q.sx + left * 4, q.sy - 4); ctx.lineTo(lx, ly); ctx.stroke();
-      inv(label, tx, ly + 3, 'rgba(240,244,255,.98)');
-      if (n === lock) {
-        ctx.strokeStyle = 'rgba(120,255,200,.9)';
-        ctx.strokeRect(q.sx - 14, q.sy - 14, 28, 28);
-        ctx.fillStyle = 'rgba(120,255,200,.95)';
-        inv('LOCK', q.sx + 18, q.sy + 4, 'rgba(120,255,200,1)');
-      }
+      const ix = (q.sx / cell) | 0, iy = (q.sy / cell) | 0, i = iy * cols + ix;
+      const seen = ix >= 0 && iy >= 0 && ix < cols && iy < rows && q.d >= z[i] - 0.06;
+      p.seen = Math.max(0, Math.min(1, (p.seen || 0) + (seen ? 0.07 : -0.07)));
+      if (p.seen > 0.5) tracked++;
+      if (p.seen < 0.02) return;
+      const locked = n === M.lock;
+      ctx.globalAlpha = p.seen;
+      ctx.strokeStyle = 'rgba(220,230,255,.6)';
+      ctx.strokeRect(Math.round(q.sx) - 4.5, Math.round(q.sy) - 4.5, 9, 9);
+      if (locked) { ctx.strokeStyle = 'rgba(120,255,200,.9)'; ctx.strokeRect(Math.round(q.sx) - 14.5, Math.round(q.sy) - 14.5, 29, 29); }
+      if (M.noLabels) { ctx.globalAlpha = 1; return; }
+      if (!p.txt || t - p.tt > 250) { p.tt = t; p.txt = narrow ? p.name : `${p.name}  X ${pad4(q.sx)} Y ${pad4(q.sy)}`; }
+      const tw = ctx.measureText(p.txt).width, pw = tw + 12;
+      const ry = Math.round(M.baseY - p.row * M.K * ce * M.S), off = p.r0 * M.S + 16;
+      const xr = (q.sx - M.cx) / M.S;
+      if (p.side === undefined) p.side = xr >= 0 ? 1 : -1;
+      else if (xr * p.side < -0.16) p.side = -p.side;
+      const spot = d => Math.max(4, Math.min(W - pw - 4, d > 0 ? M.cx + off : M.cx - off - pw));
+      const blocked = x => av && x < av.r && x + pw > av.l && ry + 10 > av.t && ry - 10 < av.b;
+      let x = spot(p.side);
+      if (blocked(x)) { x = spot(-p.side); if (blocked(x)) { ctx.globalAlpha = 1; return; } }
+      p.lx = p.lx === undefined ? x : (Math.abs(x - p.lx) < 0.6 ? x : p.lx + (x - p.lx) * 0.12);
+      const bx = Math.round(p.lx);
+      ctx.strokeStyle = 'rgba(220,230,255,.5)';
+      ctx.beginPath(); ctx.moveTo(q.sx, q.sy); ctx.lineTo(q.sx > bx + pw / 2 ? bx + pw : bx, ry); ctx.stroke();
+      // plate: dark with light text; the locked one is inverted (反白)
+      ctx.fillStyle = locked ? 'rgba(244,239,207,.97)' : 'rgba(5,6,9,.86)';
+      ctx.fillRect(bx, ry - 9, pw, 18);
+      ctx.strokeStyle = locked ? 'rgba(120,255,200,.95)' : 'rgba(220,230,255,.4)';
+      ctx.strokeRect(bx + 0.5, ry - 8.5, pw - 1, 17);
+      ctx.fillStyle = locked ? '#05060a' : 'rgba(240,244,255,.98)';
+      ctx.fillText(p.txt, bx + 6, ry + 4);
+      ctx.globalAlpha = 1;
     });
     return tracked;
   }
@@ -291,11 +281,33 @@
       if (hudRot) hudRot.textContent = (((angle * 180) / Math.PI) % 360).toFixed(2).padStart(6, '0') + '°';
       if (hudTrack) hudTrack.textContent = `TRACKING ${n} POINTS`;
     }
-    if (!reduce) requestAnimationFrame(frame);
+    if (!reduce && !paused) requestAnimationFrame(frame);
   }
 
-  function resize() { sizeStars(); sizeMountain(); if (reduce) frame(0); }
+  /* ---------- one control that pauses all motion on the page ---------- */
+  let paused = false;
+  try { paused = localStorage.getItem('motion') === 'off'; } catch (e) {}
+  const hero = document.querySelector('.hero');
+  if (hero && !reduce) {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'motion-btn';
+    const paint = () => {
+      btn.dataset.zh = paused ? '▶ 播放動態' : '❚❚ 暫停動態';
+      btn.dataset.en = paused ? '▶ PLAY MOTION' : '❚❚ PAUSE MOTION';
+      btn.textContent = document.documentElement.lang === 'en' ? btn.dataset.en : btn.dataset.zh;
+      btn.setAttribute('aria-pressed', String(paused));
+      document.documentElement.classList.toggle('paused', paused);
+    };
+    btn.addEventListener('click', () => {
+      paused = !paused; paint();
+      try { localStorage.setItem('motion', paused ? 'off' : 'on'); } catch (e) {}
+      if (!paused) requestAnimationFrame(frame);
+    });
+    paint(); hero.append(btn);
+  }
+
+  function resize() { sizeStars(); sizeMountain(); if (reduce || paused) frame(performance.now()); }
   addEventListener('resize', resize);
   resize();
-  if (!reduce) requestAnimationFrame(frame);
+  if (!reduce && !paused) requestAnimationFrame(frame);
 })();
