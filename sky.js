@@ -161,8 +161,10 @@
       ctx.strokeRect(q.sx - 4, q.sy - 4, 8, 8);
       ctx.beginPath(); ctx.moveTo(q.sx + left * 4, q.sy - 4); ctx.lineTo(lx, ly); ctx.stroke();
       ctx.fillStyle = 'rgba(225,232,255,.85)';
-      ctx.textAlign = left > 0 ? 'left' : 'right';
-      ctx.fillText(label, lx + left * 4, ly + 3);
+      let tx = left > 0 ? lx + 4 : lx - 4 - tw;
+      tx = Math.max(4, Math.min(W - tw - 4, tx));
+      ctx.textAlign = 'left';
+      ctx.fillText(label, tx, ly + 3);
       if (n === lock) {
         ctx.strokeStyle = 'rgba(120,255,200,.9)';
         ctx.strokeRect(q.sx - 14, q.sy - 14, 28, 28);
