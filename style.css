@@ -216,3 +216,13 @@ html[lang=en] .egg-h{font-size:clamp(3rem,min(14vw,24vh),10rem)}
 .egg-x{font-family:var(--mono);font-weight:700;font-size:.85rem;letter-spacing:.12em;background:none;color:var(--lime);border:2px solid var(--lime);padding:8px 16px;cursor:pointer;margin-top:6px}
 .egg-x:hover{background:var(--lime);color:#000}
 @media (prefers-reduced-motion:reduce){.egg.open,.egg-in,.haz,.egg-scouts svg,.egg-name,.modal-box,.modal-body.in{animation:none}}
+
+/* ===== interactive pulse line ===== */
+#pulse{height:64px;cursor:pointer;touch-action:manipulation}
+#pulse:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.hud-bl{bottom:112px}
+.hud-hint{left:0;right:0;bottom:84px;text-align:center;color:var(--teal);font-family:var(--dot);font-size:.8rem;letter-spacing:.14em;animation:blink 1.4s steps(1) infinite;pointer-events:none;transition:opacity .3s}
+.hud-hint.gone{opacity:0;animation:none}
+#hud-bpm{min-width:112px;text-align:center;color:var(--teal);border-color:var(--teal)}
+#hud-bpm.hot{color:#000;background:var(--red);border-color:var(--red)}
+@media (max-width:760px){.hud-bar #hud-bpm{display:block;position:absolute;right:0;bottom:66px}}

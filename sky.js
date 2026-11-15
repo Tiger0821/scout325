@@ -32,6 +32,7 @@
   /* ---------- mountain (home page only) ---------- */
   const cv = document.getElementById('mountain');
   const pulse = document.getElementById('pulse');
+  const copy = cv && cv.parentElement.querySelector('.hero-copy');
   let M = null;
 
   function height(r, th) {
@@ -99,7 +100,7 @@
     const xr = x * ca + z * sa, zr = -x * sa + z * ca;
     return {
       sx: M.cx + xr * M.S,
-      sy: M.baseY - y * M.K * ce * M.S + zr * se * M.S * 0.6,
+      sy: M.baseY - (M.jump || 0) - y * M.K * ce * M.S + zr * se * M.S * 0.6,
       d: zr * ce + y * M.K * se,
     };
   }
@@ -152,6 +153,9 @@
     ctx.lineWidth = 1;
     const lock = Math.floor(t / 2600) % M.targets.length;
     let tracked = 0;
+    // area taken by the title text, so labels never sit behind it
+    let av = null;
+    if (copy) { const a = copy.getBoundingClientRect(), b = cv.getBoundingClientRect(); av = { l: a.left - b.left - 10, r: a.right - b.left + 10, t: a.top - b.top - 6, b: a.bottom - b.top + 6 }; }
     M.targets.forEach((p, n) => {
       const q = project(p.x, p.h, p.z, ca, sa);
       const ix = (q.sx / cell) | 0, iy = (q.sy / cell) | 0;
@@ -162,16 +166,19 @@
       const label = `${p.name}  X ${Math.round(q.sx)} Y ${Math.round(q.sy)}`;
       const tw = ctx.measureText(label).width;
       let left = q.sx > M.cx + 10 ? 1 : -1;
-      const reach = 50 + n * 6;
+      const reach = 50 + n * 6, ly = q.sy - 26 - n * 4;
       if (left < 0 && q.sx - reach - tw - 8 < 0) left = 1;
       if (left > 0 && q.sx + reach + tw + 8 > W) left = -1;
-      const lx = q.sx + left * reach, ly = q.sy - 26 - n * 4;
+      const place = d => { const lx = q.sx + d * reach; return { lx, tx: Math.max(4, Math.min(W - tw - 4, d > 0 ? lx + 4 : lx - 4 - tw)) }; };
+      const blocked = o => av && o.tx < av.r && o.tx + tw > av.l && ly + 6 > av.t && ly - 10 < av.b;
+      let o = place(left);
+      if (blocked(o)) { left = -left; o = place(left); }
       ctx.strokeStyle = 'rgba(220,230,255,.55)';
       ctx.strokeRect(q.sx - 4, q.sy - 4, 8, 8);
+      if (blocked(o) || (av && q.sx > av.l && q.sx < av.r && q.sy > av.t && q.sy < av.b)) return;   // no room: box only
+      const lx = o.lx, tx = o.tx;
       ctx.beginPath(); ctx.moveTo(q.sx + left * 4, q.sy - 4); ctx.lineTo(lx, ly); ctx.stroke();
       ctx.fillStyle = 'rgba(225,232,255,.85)';
-      let tx = left > 0 ? lx + 4 : lx - 4 - tw;
-      tx = Math.max(4, Math.min(W - tw - 4, tx));
       ctx.textAlign = 'left';
       ctx.fillText(label, tx, ly + 3);
       if (n === lock) {
@@ -185,27 +192,69 @@
     return tracked;
   }
 
+  /* ---------- pulse line: a heartbeat you can pluck and pump ---------- */
+  const P = { bpm: 60, off: 0, last: 0, y: null, v: null, mx: -1, my: 0, step: 4 * DPR, taps: 0 };
+  const hudBpm = document.getElementById('hud-bpm'), hint = document.getElementById('hud-hint');
+  function beat(u) {       // a little mountain-shaped heartbeat
+    if (u > 0.42 && u < 0.5) return (u - 0.42) / 0.08;
+    if (u >= 0.5 && u < 0.56) return 1 - (u - 0.5) / 0.06 * 1.35;
+    if (u >= 0.56 && u < 0.62) return -0.35 + (u - 0.56) / 0.06 * 0.35;
+    if (u > 0.7 && u < 0.8) return 0.18 * Math.sin((u - 0.7) / 0.1 * Math.PI);
+    return 0;
+  }
   function drawPulse(t) {
     if (!pulse) return;
     const g = pulse.getContext('2d'), w = pulse.width, h = pulse.height;
+    const n = Math.ceil(w / P.step) + 1;
+    if (!P.y || P.y.length !== n) { P.y = new Float32Array(n); P.v = new Float32Array(n); }
+    const dt = Math.min(50, t - P.last || 16); P.last = t;
+    P.bpm += (60 - P.bpm) * dt * 0.00022;                    // calms back down to 60
+    const f = Math.min(1, (P.bpm - 60) / 150);
+    P.off += dt * 0.06 * DPR * (P.bpm / 60);
+    // string physics: neighbours pull on each other, everything springs back to rest
+    const base = h * 0.66, y = P.y, v = P.v;
+    for (let i = 0; i < n; i++) {
+      const l = y[i - 1] || 0, r = y[i + 1] || 0;
+      v[i] += 0.28 * (l + r - 2 * y[i]) - 0.03 * y[i]; v[i] *= 0.93;
+    }
+    for (let i = 0; i < n; i++) {
+      y[i] += v[i];
+      if (P.mx >= 0) {                                         // cursor drags the line toward it
+        const d = (i * P.step - P.mx) / (46 * DPR), wgt = Math.exp(-d * d);
+        y[i] += ((P.my - base) - y[i]) * wgt * 0.35;
+      }
+    }
+    const col = f < 0.5 ? [110 + 212 * f, 230 - 10 * f, 200 - 252 * f] : [216 + 32 * (f - 0.5), 225 - 320 * (f - 0.5), 74 - 60 * (f - 0.5)];
+    const rgb = col.map(c => Math.max(0, Math.min(255, c | 0))).join(',');
     g.clearRect(0, 0, w, h);
-    g.strokeStyle = 'rgba(110,230,200,.9)';
-    g.lineWidth = 1.5 * DPR;
-    g.shadowColor = 'rgba(110,230,200,.8)'; g.shadowBlur = 6 * DPR;
+    g.strokeStyle = `rgba(${rgb},.95)`; g.lineWidth = (1.5 + f * 1.5) * DPR;
+    g.shadowColor = `rgba(${rgb},.9)`; g.shadowBlur = (6 + f * 10) * DPR;
     g.beginPath();
-    const period = 140 * DPR, off = reduce ? 0 : (t * 0.06 * DPR) % period;
-    for (let x = 0; x <= w; x += 2) {
-      const u = ((x + off) % period) / period;
-      // a little mountain-shaped "heartbeat"
-      let y = 0;
-      if (u > 0.42 && u < 0.5) y = (u - 0.42) / 0.08;
-      else if (u >= 0.5 && u < 0.56) y = 1 - (u - 0.5) / 0.06 * 1.35;
-      else if (u >= 0.56 && u < 0.62) y = -0.35 + (u - 0.56) / 0.06 * 0.35;
-      else if (u > 0.7 && u < 0.8) y = 0.18 * Math.sin((u - 0.7) / 0.1 * Math.PI);
-      const py = h * 0.7 - y * h * 0.55;
-      x ? g.lineTo(x, py) : g.moveTo(x, py);
+    const period = 140 * DPR, amp = h * (0.42 + 0.14 * f);
+    for (let i = 0; i < n; i++) {
+      const x = i * P.step, u = ((x + P.off) % period) / period;
+      const py = base - beat(u) * amp + y[i];
+      i ? g.lineTo(x, py) : g.moveTo(x, py);
     }
     g.stroke();
+    if (hudBpm) hudBpm.textContent = `♥ ${String(Math.round(P.bpm)).padStart(3, '0')} BPM` + (P.bpm > 170 ? ' · MAX!!' : '');
+    if (hudBpm) hudBpm.classList.toggle('hot', P.bpm > 120);
+  }
+  if (pulse) {
+    const pos = e => { const r = pulse.getBoundingClientRect(); return [(e.clientX - r.left) * DPR, (e.clientY - r.top) * DPR]; };
+    const pump = x => {
+      P.bpm = Math.min(220, P.bpm + 24); P.taps++;
+      if (P.v) for (let i = 0; i < P.v.length; i++) { const d = (i * P.step - x) / (30 * DPR); P.v[i] -= 9 * DPR * Math.exp(-d * d); }
+      if (M) M.jump = 14;
+      if (hint) hint.classList.add('gone');
+      if (reduce) frame(performance.now());
+    };
+    pulse.addEventListener('pointermove', e => { [P.mx, P.my] = pos(e); });
+    pulse.addEventListener('pointerleave', () => { P.mx = -1; });
+    pulse.addEventListener('pointerdown', e => { const [x] = pos(e); pump(x); });
+    pulse.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pump(pulse.width / 2); } });
+    pulse.tabIndex = 0; pulse.setAttribute('role', 'button');
+    pulse.setAttribute('aria-label', '心跳線：點擊讓心跳加速 / Heartbeat line: tap to speed it up');
   }
 
   const hudT = document.getElementById('hud-t');
@@ -215,7 +264,10 @@
   function frame(t) {
     drawStars(t);
     if (M) {
-      const angle = reduce ? 1.0 : t * 0.00018;
+      const mdt = Math.min(50, t - (M.lt || t)); M.lt = t;
+      M.jump = (M.jump || 0) * 0.9;
+      M.angle = (M.angle || 0) + mdt * 0.00018 * Math.pow(P.bpm / 60, 1.6);
+      const angle = reduce ? 1.0 : M.angle;
       const n = drawMountain(t, angle);
       drawPulse(t);
       if (hudT) hudT.textContent = `t ${(t / 1000).toFixed(2).padStart(6, '0')}s`;

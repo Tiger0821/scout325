@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DotGothic16&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 </head>
 <body>
 <header><div class="bar"><a class="logo" href="index.html"><b>325</b><div><span>奎山童軍團</span><small>KUISHAN SCOUT TROOP</small></div></a><nav><a href="index.html" class="active"><i>01</i><span data-en="HOME">首頁</span></a><a href="about.html"><i>02</i><span data-en="ABOUT">團的介紹</span></a><a href="calendar.html"><i>03</i><span data-en="CALENDAR">行事曆</span></a><a href="guestbook.html"><i>04</i><span data-en="GUESTBOOK">留言板</span></a><button id="lang" class="langbtn" type="button">EN</button></nav></div></header>
@@ -22,7 +22,8 @@
 <div class="hud hud-tr" id="hud-t">t 000.00s</div>
 <div class="hud hud-bl">@325.KUISHAN · 2026
 rotation <span id="hud-rot">000.00°</span>    scouts  ∞</div>
-<div class="hud-bar"><span class="chip" id="hud-track">TRACKING 0 POINTS</span><canvas id="pulse" aria-hidden="true"></canvas><span class="chip">LEAD 325</span></div>
+<div class="hud hud-hint" id="hud-hint" data-en="▼ TAP THE HEARTBEAT · DRAG TO PLUCK IT">▼ 點一下心跳線・拖曳可以撥動它</div>
+<div class="hud-bar"><span class="chip" id="hud-track">TRACKING 0 POINTS</span><canvas id="pulse"></canvas><span class="chip" id="hud-bpm">♥ 060 BPM</span></div>
 </section>
 <div class="band" aria-hidden="true"><div>準備<i></i>BE PREPARED<i></i>日行一善<i></i>SCOUT TROOP 325<i></i>奎山童軍團<i></i>人生以服務為目的<i></i>準備<i></i>BE PREPARED<i></i>日行一善<i></i>SCOUT TROOP 325<i></i>奎山童軍團<i></i>人生以服務為目的<i></i>準備<i></i>BE PREPARED<i></i>日行一善<i></i>SCOUT TROOP 325<i></i>奎山童軍團<i></i>人生以服務為目的<i></i>準備<i></i>BE PREPARED<i></i>日行一善<i></i>SCOUT TROOP 325<i></i>奎山童軍團<i></i>人生以服務為目的<i></i></div></div>
 <main>
@@ -48,7 +49,7 @@ rotation <span id="hud-rot">000.00°</span>    scouts  ∞</div>
 </section>
 </main>
 <footer><div class="mega" aria-hidden="true">BE PREPARED</div><p>© 2026 325 奎山童軍團 · SCOUT TROOP 325 <span class="blink">_</span></p></footer>
-<script src="sky.js?v=8"></script>
-<script src="app.js?v=8"></script>
+<script src="sky.js?v=9"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
