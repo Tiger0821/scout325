@@ -108,7 +108,7 @@
   const pull = el('div', 'pull');
   document.body.append(egg, pull);
   let acc = 0, idle = 0, eggOpen = false;
-  const NEED = 520;
+  const NEED = 300;
   function tug(d) {
     if (eggOpen || modal.classList.contains('open') || scrollY > 0) return;
     acc += d; clearTimeout(idle);
@@ -126,7 +126,7 @@
   addEventListener('wheel', e => { if (e.deltaY < 0) tug(Math.min(120, -e.deltaY)); else if (eggOpen && e.deltaY > 30) closeEgg(); }, { passive: true });
   let ty = null;
   addEventListener('touchstart', e => { ty = scrollY <= 0 ? e.touches[0].clientY : null; }, { passive: true });
-  addEventListener('touchmove', e => { if (ty === null) return; const y = e.touches[0].clientY; if (y > ty) tug((y - ty) * 1.6); ty = y; }, { passive: true });
+  addEventListener('touchmove', e => { if (ty === null || eggOpen) return; const y = e.touches[0].clientY; if (y > ty && scrollY <= 0) { if (e.cancelable) e.preventDefault(); tug((y - ty) * 2.2); } ty = y; }, { passive: false });
   $('.egg-x', egg).addEventListener('click', closeEgg);
 
   addEventListener('keydown', e => {

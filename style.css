@@ -232,3 +232,6 @@ html[lang=en] .egg-h{font-size:clamp(3rem,min(14vw,24vh),10rem)}
 .motion-btn:hover,.motion-btn[aria-pressed=true]{color:#000;background:var(--lime);border-color:var(--lime)}
 html.paused *,html.paused *::before,html.paused *::after{animation-play-state:paused!important}
 @media (max-width:760px){.motion-btn{top:14px;left:16px;right:auto}.hero .hero-copy{top:52px}.hud-hint{bottom:118px;font-size:.72rem}}
+
+/* stop the browser's pull-to-refresh / bounce so the easter-egg pull works */
+html,body{overscroll-behavior-y:none}
