@@ -75,9 +75,17 @@
     M.cols = Math.ceil(M.W / M.cell); M.rows = Math.ceil(M.H / M.cell);
     M.z = new Float32Array(M.cols * M.rows);
     M.c = new Float32Array(M.cols * M.rows * 3);
-    M.S = M.W < 760 ? Math.min(M.W * 0.44, M.H * 0.36) : Math.min(M.W * 0.3, M.H * 0.42);
-    M.cx = M.W * (M.W < 760 ? 0.5 : 0.58);
-    M.baseY = M.H * 0.7;
+    const sub = cv.parentElement.classList.contains('sub'), narrow = M.W < 760;
+    if (sub) {
+      M.S = narrow ? Math.min(M.W * 0.3, M.H * 0.4) : Math.min(M.W * 0.2, M.H * 0.52);
+      M.cx = M.W * (narrow ? 0.7 : 0.74);
+      M.baseY = M.H * (narrow ? 0.88 : 0.8);
+      M.noLabels = narrow;
+    } else {
+      M.S = narrow ? Math.min(M.W * 0.44, M.H * 0.36) : Math.min(M.W * 0.3, M.H * 0.42);
+      M.cx = M.W * (narrow ? 0.5 : 0.58);
+      M.baseY = M.H * 0.7;
+    }
     if (pulse) {
       const p = pulse.getBoundingClientRect();
       pulse.width = p.width * DPR; pulse.height = p.height * DPR;
@@ -150,6 +158,7 @@
       const i = iy * cols + ix;
       if (ix < 0 || iy < 0 || ix >= cols || iy >= rows || q.d < z[i] - 0.06) return;
       tracked++;
+      if (M.noLabels) { ctx.strokeStyle = 'rgba(220,230,255,.55)'; ctx.strokeRect(q.sx - 4, q.sy - 4, 8, 8); return; }
       const label = `${p.name}  X ${Math.round(q.sx)} Y ${Math.round(q.sy)}`;
       const tw = ctx.measureText(label).width;
       let left = q.sx > M.cx + 10 ? 1 : -1;
