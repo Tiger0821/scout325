@@ -7,6 +7,7 @@
   /* ---------- starfield (every page) ---------- */
   const sc = document.createElement('canvas');
   sc.id = 'stars';
+  sc.style.cssText = 'position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none';
   document.body.prepend(sc);
   const sx = sc.getContext('2d');
   let stars = [];
