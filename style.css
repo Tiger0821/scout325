@@ -96,7 +96,7 @@ h2 .tag{margin-left:auto;font-family:var(--mono);font-size:.7rem;letter-spacing:
 .label{display:inline-block;font-family:var(--mono);font-weight:700;font-size:.68rem;letter-spacing:.14em;color:#000;background:var(--cream);border:2px solid #000;outline:2px solid var(--cream);padding:1px 8px;transform:rotate(-3deg);box-shadow:4px 4px 0 var(--red);margin:2px 0 6px 2px}
 .card:nth-child(even) .label{transform:rotate(2.5deg);box-shadow:4px 4px 0 var(--teal)}
 .photos figure{margin:0}
-.photos img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;clip-path:var(--cut)}
+.photos img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;clip-path:var(--cut);image-rendering:pixelated}
 .photos figcaption{font-family:var(--dot);font-size:.75rem;color:var(--muted);margin-top:6px;letter-spacing:.1em}
 
 .table-wrap{overflow-x:auto}
