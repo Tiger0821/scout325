@@ -149,7 +149,27 @@
     }
 
     // HUD callouts on tracked points
-    ctx.font = `10px ${MONO}`;
+    ctx.font = `700 11px ${MONO}`;
+    ctx.textAlign = 'left';
+    // 反白 text: light on the dark sky, dark wherever it crosses the mountain
+    const inv = (text, tx, by, color) => {
+      const tw = ctx.measureText(text).width;
+      ctx.fillStyle = color; ctx.fillText(text, tx, by);
+      const x0 = Math.max(0, ((tx - 3) / cell) | 0), x1 = Math.min(cols - 1, ((tx + tw + 3) / cell) | 0);
+      const y0 = Math.max(0, ((by - 12) / cell) | 0), y1 = Math.min(rows - 1, ((by + 4) / cell) | 0);
+      ctx.save(); ctx.beginPath();
+      let any = false;
+      for (let iy = y0; iy <= y1; iy++) for (let ix = x0; ix <= x1; ix++) {
+        const i = iy * cols + ix;
+        if (z[i] === -1e9) continue;
+        any = true;
+        ctx.fillStyle = `rgb(${Math.min(255, c[i * 3] + 40) | 0},${Math.min(255, c[i * 3 + 1] + 40) | 0},${Math.min(255, c[i * 3 + 2] + 40) | 0})`;
+        ctx.fillRect(ix * cell, iy * cell, cell, cell);
+        ctx.rect(ix * cell, iy * cell, cell, cell);
+      }
+      if (any) { ctx.clip(); ctx.fillStyle = '#03050a'; ctx.fillText(text, tx, by); }
+      ctx.restore();
+    };
     ctx.lineWidth = 1;
     const lock = Math.floor(t / 2600) % M.targets.length;
     let tracked = 0;
@@ -178,15 +198,12 @@
       if (blocked(o) || (av && q.sx > av.l && q.sx < av.r && q.sy > av.t && q.sy < av.b)) return;   // no room: box only
       const lx = o.lx, tx = o.tx;
       ctx.beginPath(); ctx.moveTo(q.sx + left * 4, q.sy - 4); ctx.lineTo(lx, ly); ctx.stroke();
-      ctx.fillStyle = 'rgba(225,232,255,.85)';
-      ctx.textAlign = 'left';
-      ctx.fillText(label, tx, ly + 3);
+      inv(label, tx, ly + 3, 'rgba(240,244,255,.98)');
       if (n === lock) {
         ctx.strokeStyle = 'rgba(120,255,200,.9)';
         ctx.strokeRect(q.sx - 14, q.sy - 14, 28, 28);
         ctx.fillStyle = 'rgba(120,255,200,.95)';
-        ctx.textAlign = 'left';
-        ctx.fillText('LOCK', q.sx + 18, q.sy + 4);
+        inv('LOCK', q.sx + 18, q.sy + 4, 'rgba(120,255,200,1)');
       }
     });
     return tracked;
