@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=DotGothic16&family=JetBrains+Mono:wght@400;700&family=Noto+Sans+TC:wght@400;700;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="guestbook.css?v=1">
 </head>
 <body>
 <header><div class="bar"><a class="logo" href="index.html"><b>325</b><div><span>奎山童軍團</span><small>KUISHAN SCOUT TROOP</small></div></a><nav><a href="index.html"><i>01</i><span data-en="HOME">首頁</span></a><a href="about.html"><i>02</i><span data-en="ABOUT">團的介紹</span></a><a href="calendar.html"><i>03</i><span data-en="CALENDAR">行事曆</span></a><a href="guestbook.html" class="active"><i>04</i><span data-en="GUESTBOOK">留言板</span></a><button id="lang" class="langbtn" type="button">EN</button></nav></div></header>
@@ -23,7 +24,46 @@
 <main>
 <section>
 <h2><span class="num">01</span><span class="gl" data-text="留下訊息" data-en="MESSAGES">留下訊息</span><span class="tag" data-en="留下訊息">MESSAGES</span></h2>
-<p class="note"><span data-en="The guestbook is coming soon. Stay tuned">留言功能即將推出，敬請期待</span><span class="blink">_</span></p>
+<p class="gb-intro" data-en="Leave a message for Troop 325. It goes up on the wall &lt;b&gt;right away&lt;/b&gt;.">留一句話給 325 奎山童軍團，送出後會<b>立刻</b>貼上留言牆。</p>
+<div class="gb">
+<form class="gb-form" id="gb-form" novalidate>
+<div class="gb-form-top"><span data-en="NEW MESSAGE">新留言</span><small>TRANSMISSION // 325</small></div>
+<div class="gb-haz" aria-hidden="true"></div>
+<div class="gb-fields">
+<div class="gb-row">
+<div class="gb-field"><label for="gb-name"><i>01</i><span data-en="Name">名字／暱稱</span></label><input type="text" id="gb-name" name="name" maxlength="20" autocomplete="nickname" placeholder="小虎" data-ph-en="Tiger" required></div>
+<div class="gb-field"><label for="gb-patrol"><i>02</i><span data-en="Patrol">小隊</span><em data-en="optional">可不填</em></label><input type="text" id="gb-patrol" name="patrol" maxlength="20" placeholder="老鷹小隊" data-ph-en="Eagle Patrol"></div>
+</div>
+<fieldset class="gb-field"><legend><i>03</i><span data-en="I am a…">身分</span></legend>
+<div class="gb-pills">
+<label><input type="radio" name="role" value="scout" checked><span data-en="SCOUT">童軍夥伴</span></label>
+<label><input type="radio" name="role" value="leader"><span data-en="LEADER">服務員</span></label>
+<label><input type="radio" name="role" value="parent"><span data-en="PARENT">家長</span></label>
+<label><input type="radio" name="role" value="alumni"><span data-en="ALUMNI">校友</span></label>
+<label><input type="radio" name="role" value="guest"><span data-en="GUEST">訪客</span></label>
+</div></fieldset>
+<fieldset class="gb-field"><legend><i>04</i><span data-en="Scarf colour">領巾顏色</span></legend>
+<div class="gb-scarves">
+<label style="--c:var(--lime)"><input type="radio" name="color" value="lime" aria-label="黃綠色 Lime" checked><span data-scarf="lime"></span></label>
+<label style="--c:var(--red)"><input type="radio" name="color" value="red" aria-label="紅色 Red"><span data-scarf="red"></span></label>
+<label style="--c:var(--teal)"><input type="radio" name="color" value="teal" aria-label="藍綠色 Teal"><span data-scarf="teal"></span></label>
+<label style="--c:var(--cream)"><input type="radio" name="color" value="cream" aria-label="米白色 Cream"><span data-scarf="cream"></span></label>
+</div></fieldset>
+<div class="gb-field"><label for="gb-message"><i>05</i><span data-en="Message">留言內容</span></label><textarea id="gb-message" name="message" maxlength="300" rows="4" placeholder="想說的話、活動心得、給夥伴的加油…" data-ph-en="A story, a thank-you, a cheer for your patrol…" required></textarea><span class="gb-count" id="gb-count" aria-hidden="true">000 / 300</span></div>
+<div class="gb-hp" aria-hidden="true"><label>Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label></div>
+<button class="gb-send" id="gb-send" type="submit" data-en="SEND ▶">送出留言 ▶</button>
+<p class="gb-status" id="gb-status" role="status" aria-live="polite"></p>
+</div>
+</form>
+<div class="gb-wallbox">
+<div class="gb-bar"><span class="gb-live" id="gb-live">LIVE</span><span class="gb-total" id="gb-total"></span><span class="gb-sync" id="gb-sync"></span></div>
+<div class="gb-tick" id="gb-tick" aria-hidden="true"><i></i></div>
+<p class="gb-demo-note" id="gb-demo-note" hidden data-en="DEMO MODE: the guestbook is not connected to Google Forms yet. Messages are only saved in your own browser.">示範模式：留言板還沒連接 Google 表單，留言只會存在你自己的瀏覽器裡。</p>
+<ul class="gb-wall" id="gb-wall" aria-label="留言牆 Message wall"></ul>
+<button class="gb-more" id="gb-more" type="button" hidden data-en="▼ LOAD MORE">▼ 載入更多</button>
+</div>
+</div>
+<noscript><p class="note">需要開啟 JavaScript 才能使用留言板。</p></noscript>
 </section>
 <section>
 <h2><span class="num">02</span><span class="gl" data-text="聯絡我們" data-en="CONTACT">聯絡我們</span><span class="tag" data-en="聯絡我們">CONTACT</span></h2>
@@ -45,5 +85,6 @@
 <footer><div class="mega" aria-hidden="true">BE PREPARED</div><p>© 2026 325 奎山童軍團 · SCOUT TROOP 325 <span class="blink">_</span></p></footer>
 <script src="sky.js?v=8"></script>
 <script src="app.js?v=8"></script>
+<script src="guestbook.js?v=2"></script>
 </body>
 </html>
